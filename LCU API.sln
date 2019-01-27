@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{283B004F-B153-4FDA-9028-9FD060A5D472}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Develop", "Develop", "{F636DCDC-193B-4184-BF5A-B272BA82413A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Deploy", "Deploy", "{F90B0583-4AAB-448C-B883-CBF28AF8CF0D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{8967EFD4-FE9D-4248-BCFE-E3024D2297FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Enterprises", "Enterprises", "{306E0CC2-F912-4571-9ED0-DBE1CC7EB3C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LCU.API.Enterprises", "LCU.API.Enterprises\LCU.API.Enterprises.csproj", "{E6F11387-BE15-4FB0-AF92-7987ED55C233}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6F11387-BE15-4FB0-AF92-7987ED55C233}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6F11387-BE15-4FB0-AF92-7987ED55C233}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6F11387-BE15-4FB0-AF92-7987ED55C233}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6F11387-BE15-4FB0-AF92-7987ED55C233}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{306E0CC2-F912-4571-9ED0-DBE1CC7EB3C0} = {F90B0583-4AAB-448C-B883-CBF28AF8CF0D}
+		{E6F11387-BE15-4FB0-AF92-7987ED55C233} = {306E0CC2-F912-4571-9ED0-DBE1CC7EB3C0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5B16ED4E-56B1-4FC4-AF23-3C76A1D41D0A}
+	EndGlobalSection
+EndGlobal
