@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="Fathym" Version="1.1.19013.4" />
     <PackageReference Include="Fathym.API" Version="1.1.19013.4" />
-    <PackageReference Include="LCU.Graphs" Version="1.0.19027.1-prerelease" />
+    <PackageReference Include="LCU.Graphs" Version="1.0.19028.1-prerelease" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
   </ItemGroup>
   <ItemGroup>
