@@ -1,30 +1,28 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Fathym;
+using Fathym.API;
+using LCU.Graphs;
+using LCU.Graphs.Registry.Enterprises;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using LCU.Graphs.Registry.Enterprises;
-using LCU.Graphs;
-using Fathym.API;
-using Fathym;
+using System;
+using System.IO;
 using System.Linq;
-using Gremlin.Net.Process.Traversal;
-using Gremlin.Net.Structure;
+using System.Threading.Tasks;
 
 namespace LCU.API.Enterprises
 {
-    public static class SaveDAFApplicationConfig
-    {
-        [FunctionName("SaveDAFApplicationConfig")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
-            ILogger log)
-        {
-            log.LogInformation("SaveDAFApplicationConfig processed a request.");
+	public static class SaveDAFApplicationConfig
+	{
+		[FunctionName("SaveDAFApplicationConfig")]
+		public static async Task<IActionResult> Run(
+			[HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+			ILogger log)
+		{
+			log.LogInformation("SaveDAFApplicationConfig processed a request.");
 
 			var entGraphConfig = new LCUGraphConfig()
 			{
@@ -34,8 +32,6 @@ namespace LCU.API.Enterprises
 				Graph = Environment.GetEnvironmentVariable("LCU_GRAPH")
 			};
 
-			string type = req.Query["type"];
-
 			string apiKey = req.Query["apiKey"];
 
 			var appGraph = new AppGraph(entGraphConfig);
@@ -44,49 +40,30 @@ namespace LCU.API.Enterprises
 
 			var response = new BaseResponse();
 
-			switch (type)
-			{
-				case "API":
-					var apiConfig = requestBody.FromJSON<DAFApplicationConfiguration>();
+			var appConfig = requestBody.FromJSON<DAFApplicationConfiguration>();
 
-					var apiResult = await appGraph.SaveDAFApplication(apiKey, apiConfig);
+			var appResult = await appGraph.SaveDAFApplication(apiKey, appConfig);
 
-					var api = apiResult.JSONConvert<DAFAPIConfiguration>();
-
-					response.Status = Status.Success;
-					break;
-
-				case "View":
-					var viewConfig = requestBody.FromJSON<DAFApplicationConfiguration>();
-
-					var viewResult = await appGraph.SaveDAFApplication(apiKey, viewConfig);
-
-					var view = viewResult.JSONConvert<DAFViewConfiguration>();
-
-					response.Status = Status.Success;
-					break;
-
-				default:
-					response.Status = Status.GeneralError.Clone("The provided type is not supported.");
-					break;
-			}
+			response.Status = Status.Success;
 
 			return new JsonResult(response, new JsonSerializerSettings());
 		}
-    }
+	}
 
-public class AppGraph : ApplicationGraph
-{
+	public class AppGraph : ApplicationGraph
+	{
 		public AppGraph(LCUGraphConfig config)
 			: base(config)
 		{
 
 		}
+
 		public override async Task<DAFApplicationConfiguration> SaveDAFApplication(string apiKey, DAFApplicationConfiguration config)
 		{
 			return await withG(async (client, g) =>
 			{
 				var existingQuery = g.V().HasLabel(AppGraphConstants.DAFAppVertexName)
+						.HasId(config.ID)
 						.Has("ApplicationID", config.ApplicationID)
 						.Has("Registry", $"{apiKey}|{config.ApplicationID}");
 
@@ -94,7 +71,7 @@ public class AppGraph : ApplicationGraph
 
 				var existingAppResult = existingResults.FirstOrDefault();
 
-				var query = existingAppResult == null ? 
+				var query = existingAppResult == null ?
 					g.AddV(AppGraphConstants.DAFAppVertexName)
 						.Property("ApplicationID", config.ApplicationID)
 						.Property("Registry", $"{apiKey}|{config.ApplicationID}") :
@@ -103,16 +80,19 @@ public class AppGraph : ApplicationGraph
 						.Has("ApplicationID", config.ApplicationID)
 						.Has("Registry", $"{apiKey}|{config.ApplicationID}");
 
+				query = query.Property("Priority", config.Metadata["Priority"].As<int>());
+
 				if (config.Metadata.ContainsKey("BaseHref"))
 				{
 					query.Property("BaseHref", config.Metadata["BaseHref"])
 						.Property("NPMPackage", config.Metadata["NPMPackage"])
-						.Property("PackageVersion", config.Metadata["PackageVersion"]); 
+						.Property("PackageVersion", config.Metadata["PackageVersion"]);
 				}
-				else
+				else if (config.Metadata.ContainsKey("APIRoot"))
 				{
-					query.Property("Host", config.Metadata["Host"])
-						.Property("Path", config.Metadata["Path"])
+					query.Property("APIRoot", config.Metadata["APIRoot"])
+						.Property("InboundPath", config.Metadata["InboundPath"])
+						.Property("Methods", config.Metadata["Methods"])
 						.Property("Security", config.Metadata["Security"]);
 				}
 
@@ -130,7 +110,7 @@ public class AppGraph : ApplicationGraph
 
 				var edgeQueries = new[] {
 					g.V(appResult.ID).AddE(AppGraphConstants.ProvidesEdgeName).To(g.V(appAppResult.ID)),
-				};
+					};
 
 				foreach (var edgeQuery in edgeQueries)
 				{
@@ -140,6 +120,5 @@ public class AppGraph : ApplicationGraph
 				return appAppResult;
 			});
 		}
-
 	}
 }
